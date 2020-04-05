@@ -1,0 +1,16 @@
+name: 'Download Assets'
+description: 'Download github.com release assets'
+inputs:
+  owner:
+    required: true
+  repo:
+    required: true
+  tag:
+    required: true
+  file:
+    required: true
+  token:
+    required: false
+runs:
+  using: 'node12'
+  main: 'main.js'
