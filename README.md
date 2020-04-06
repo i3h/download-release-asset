@@ -6,12 +6,12 @@ This GitHub Action helps download release asset from a private repository with p
 
 ```
 - name: Download Release Asset
-    id: download_release_asset
-    uses: noobly314/download-release-asset@v1
-    with:
-      owner: owner_of_repo
-      repo: repo_name
-      tag: tag_or_latest
-      file: file_name
-      token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  id: download_release_asset
+  uses: noobly314/download-release-asset@v1
+  with:
+    owner: owner_of_repo
+    repo: repo_name
+    tag: tag_or_latest
+    file: file_name
+    token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 ```
