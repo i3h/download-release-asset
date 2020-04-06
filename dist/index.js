@@ -27827,9 +27827,11 @@ async function run() {
     //console.log(js);
 
     // Get asset
+    let re = new RegExp(file);
     assets = js.assets;
     for (let a of assets) {
-      if (a.name == file) {
+      //if (a.name == file) {
+      if (re.test(a.name)) {
         asset = a;
         break;
       }
