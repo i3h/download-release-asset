@@ -5,12 +5,12 @@ const request = require('request-promise');
 
 async function run() {
   try {
-    const token = core.getInput('token');
+    const api = 'https://api.github.com';
     const owner = core.getInput('owner');
     const repo = core.getInput('repo');
     const tag = core.getInput('tag');
     const file = core.getInput('file');
-    const api = 'https://api.github.com';
+    const token = core.getInput('token');
 
     let url, resp, headers, js, assets, asset;
 
@@ -41,11 +41,9 @@ async function run() {
     //console.log(js);
 
     // Get asset
-    let re = new RegExp(file);
     assets = js.assets;
     for (let a of assets) {
-      //if (a.name == file) {
-      if (re.test(a.name)) {
+      if (a.name == file) {
         asset = a;
         break;
       }
