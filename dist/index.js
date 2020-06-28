@@ -27800,7 +27800,7 @@ async function run() {
 
     /*
      * If input variable <file> starts with '/' and ends with '/',
-     * it will be treated as user input regex. (e.g /[a-zA-Z].txt/)
+     * it will be treated as user input regex. (e.g /[a-zA-Z]+.txt/)
      *
      * If <file> does not contain '/', we will construct a regex
      * exactly matching <file>.
