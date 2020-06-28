@@ -12,61 +12,71 @@ async function run() {
     const file = core.getInput('file');
     const token = core.getInput('token');
 
-    let url, resp, headers, js, assets, asset;
+    /*
+     * If input variable <file> starts with '/' and ends with '/',
+     * it will be treated as user input regex. (e.g /[a-zA-Z]+.txt/)
+     *
+     * If <file> does not contain '/', we will construct a regex
+     * exactly matching <file>.
+     *
+     * All of matched assets will be downloaded.
+     */
 
     // Get release
+    let url;
     if (tag == 'latest') {
       url = api + '/repos/' + owner + '/' + repo + '/releases/latest';
     } else {
       url = api + '/repos/' + owner + '/' + repo + '/releases/tags/' + tag;
     }
-    if (token == '') {
-      headers = {
-        Accept: 'application/json',
-        'User-Agent': 'request',
-      };
-    } else {
-      headers = {
-        Authorization: 'token ' + token,
-        Accept: 'application/json',
-        'User-Agent': 'request',
-      };
+
+    let headers = {
+      Accept: 'application/json',
+      'User-Agent': 'request',
+    };
+    if (token != '') {
+      headers.Authorization = 'token ' + token;
     }
+
     //console.log(url);
-    resp = await request({
+    let resp = await request({
       url: url,
       headers: headers,
     });
-    js = JSON.parse(resp);
+    let js = JSON.parse(resp);
     //console.log(js);
 
-    // Get asset
-    assets = js.assets;
-    for (let a of assets) {
-      if (a.name == file) {
-        asset = a;
-        break;
+    // Construct regex
+    let re;
+    if (file[0] == '/' && file[file.length - 1] == '/') {
+      re = new RegExp(file.substr(1, file.length - 2));
+    } else {
+      re = new RegExp('^' + file + '$');
+    }
+
+    // Get assets
+    let assets = [];
+    for (let a of js.assets) {
+      if (re.test(a.name)) {
+        assets.push(a);
       }
     }
-    //console.log(asset);
+    //console.log(assets);
 
-    // Download asset
-    if (token == '') {
-      headers = {
-        Accept: 'application/octet-stream',
-        'User-Agent': 'request',
-      };
-    } else {
-      headers = {
-        Authorization: 'token ' + token,
-        Accept: 'application/octet-stream',
-        'User-Agent': 'request',
-      };
+    // Download assets
+    headers = {
+      Accept: 'application/octet-stream',
+      'User-Agent': 'request',
+    };
+    if (token != '') {
+      headers.Authorization = 'token ' + token;
     }
-    request({
-      url: asset.url,
-      headers: headers,
-    }).pipe(fs.createWriteStream(asset.name));
+    for (let a of assets) {
+      request({
+        url: a.url,
+        headers: headers,
+      }).pipe(fs.createWriteStream(a.name));
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
