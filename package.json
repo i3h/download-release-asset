@@ -1,6 +1,6 @@
 {
   "name": "download-release-asset",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,19 +8,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/noobly314/download-release-asset.git"
+    "url": "git+https://github.com/i3h/download-release-asset.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/noobly314/download-release-asset/issues"
+    "url": "https://github.com/i3h/download-release-asset/issues"
   },
-  "homepage": "https://github.com/noobly314/download-release-asset#readme",
+  "homepage": "https://github.com/i3h/download-release-asset#readme",
   "dependencies": {
     "@actions/core": "^1.2.3",
     "@actions/github": "^2.1.1",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5"
+    "axios": "^0.19.2"
+  },
+  "resolutions": {
+    "axios/follow-redirects": "^1.12.1"
   }
 }

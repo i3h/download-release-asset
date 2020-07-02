@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
-const request = require('request-promise');
+const axios = require('axios').default;
 
 async function run() {
   try {
@@ -11,16 +11,6 @@ async function run() {
     const tag = core.getInput('tag');
     const file = core.getInput('file');
     const token = core.getInput('token');
-
-    /*
-     * If input variable <file> starts with '/' and ends with '/',
-     * it will be treated as user input regex. (e.g /[a-zA-Z]+.txt/)
-     *
-     * If <file> does not contain '/', we will construct a regex
-     * exactly matching <file>.
-     *
-     * All of matched assets will be downloaded.
-     */
 
     // Get release
     let url;
@@ -32,19 +22,17 @@ async function run() {
 
     let headers = {
       Accept: 'application/json',
-      'User-Agent': 'request',
     };
     if (token != '') {
       headers.Authorization = 'token ' + token;
     }
 
-    //console.log(url);
-    let resp = await request({
+    let resp = await axios({
+      method: 'get',
       url: url,
       headers: headers,
     });
-    let js = JSON.parse(resp);
-    //console.log(js);
+    let js = resp.data;
 
     // Construct regex
     let re;
@@ -61,21 +49,23 @@ async function run() {
         assets.push(a);
       }
     }
-    //console.log(assets);
 
     // Download assets
     headers = {
       Accept: 'application/octet-stream',
-      'User-Agent': 'request',
     };
     if (token != '') {
       headers.Authorization = 'token ' + token;
     }
     for (let a of assets) {
-      request({
+      axios({
+        method: 'get',
         url: a.url,
         headers: headers,
-      }).pipe(fs.createWriteStream(a.name));
+        responseType: 'stream',
+      }).then(resp => {
+        resp.data.pipe(fs.createWriteStream(a.name));
+      });
     }
   } catch (error) {
     core.setFailed(error.message);
