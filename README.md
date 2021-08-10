@@ -13,24 +13,24 @@ This GitHub Action helps download release asset from a private repository with p
     repo: repo_name
     tag: tag_or_latest
     file: file_name
+    path: path_to_save_files
     token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+# $path does not work on Windows runner
 ```
 
 ## Features
 
-1.  Support private repository
+#### Support private repository
 
-    If \<token\> is provided, you will be able to download assets from a private
-    repository.
+If `token` is provided, you will be able to download assets from a private
+repository.
 
-    Please create your personal access token by following instructions of GitHub.
+Please create your personal access token by following instructions of GitHub.
 
-2.  Support file name regex
+#### Support file name regex
 
-    If input variable \<file\> starts with '/' and ends with '/',
-    it will be treated as user input regex. (e.g /[a-zA-Z]+.txt/)
+If input variable `file` starts and ends with `/`,
+it will be treated as regex. (e.g `/[a-zA-Z]+.txt/`)
 
-    If \<file\> does not contain '/', we will construct a regex
-    exactly matching \<file\>.
-
-    All of matched assets will be downloaded.
+All of matched assets will be downloaded.
