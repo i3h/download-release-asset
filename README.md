@@ -15,8 +15,6 @@ This GitHub Action helps download release asset from a private repository with p
     file: file_name
     path: path_to_save_files
     token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-# $path does not work on Windows runner
 ```
 
 ## Features
