@@ -2,22 +2,26 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
 const axios = require('axios').default;
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+const process = require('process');
 
 async function run() {
   try {
-    const api = 'https://api.github.com';
-    const owner = core.getInput('owner');
-    const repo = core.getInput('repo');
-    const tag = core.getInput('tag');
-    const file = core.getInput('file');
-    const token = core.getInput('token');
+    var api = 'https://api.github.com';
+    var owner = core.getInput('owner');
+    var repo = core.getInput('repo');
+    var tag = core.getInput('tag');
+    var file = core.getInput('file');
+    var path = core.getInput('path');
+    var token = core.getInput('token');
 
     // Get release
     let url;
     if (tag == 'latest') {
-      url = api + '/repos/' + owner + '/' + repo + '/releases/latest';
+      url = `${api}/repos/${owner}/${repo}/releases/latest`;
     } else {
-      url = api + '/repos/' + owner + '/' + repo + '/releases/tags/' + tag;
+      url = `${api}/repos/${owner}/${repo}/releases/tags/${tag}`;
     }
 
     let headers = {
@@ -50,6 +54,18 @@ async function run() {
       }
     }
 
+    // Create output directory
+    if (path == '' || path == '/') {
+      path = '.';
+    } else {
+      if (process.platform == 'win32') {
+        path = '.';
+      } else {
+        path = `./${path}`;
+        await exec(`mkdir -p ${path}`);
+      }
+    }
+
     // Download assets
     headers = {
       Accept: 'application/octet-stream',
@@ -64,7 +80,7 @@ async function run() {
         headers: headers,
         responseType: 'stream',
       }).then(resp => {
-        resp.data.pipe(fs.createWriteStream(a.name));
+        resp.data.pipe(fs.createWriteStream(`${path}/${a.name}`));
       });
     }
   } catch (error) {

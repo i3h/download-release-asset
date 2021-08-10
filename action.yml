@@ -10,6 +10,8 @@ inputs:
     required: true
   file:
     required: true
+  path:
+    required: false
   token:
     required: false
 

@@ -6946,6 +6946,12 @@ function convertBody(buffer, headers) {
 	// html4
 	if (!res && str) {
 		res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
+		if (!res) {
+			res = /<meta[\s]+?content=(['"])(.+?)\1[\s]+?http-equiv=(['"])content-type\3/i.exec(str);
+			if (res) {
+				res.pop(); // drop last quote
+			}
+		}
 
 		if (res) {
 			res = /charset=(.*)/i.exec(res.pop());
@@ -7953,7 +7959,7 @@ function fetch(url, opts) {
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
 					case 'error':
-						reject(new FetchError(`redirect mode is set to error: ${request.url}`, 'no-redirect'));
+						reject(new FetchError(`uri requested responds with a redirect, redirect mode is set to error: ${request.url}`, 'no-redirect'));
 						finalize();
 						return;
 					case 'manual':
@@ -7992,7 +7998,8 @@ function fetch(url, opts) {
 							method: request.method,
 							body: request.body,
 							signal: request.signal,
-							timeout: request.timeout
+							timeout: request.timeout,
+							size: request.size
 						};
 
 						// HTTP-redirect fetch step 9
@@ -8703,22 +8710,26 @@ const core = __webpack_require__(792);
 const github = __webpack_require__(443);
 const fs = __webpack_require__(747);
 const axios = __webpack_require__(584).default;
+const util = __webpack_require__(669);
+const exec = util.promisify(__webpack_require__(129).exec);
+const process = __webpack_require__(765);
 
 async function run() {
   try {
-    const api = 'https://api.github.com';
-    const owner = core.getInput('owner');
-    const repo = core.getInput('repo');
-    const tag = core.getInput('tag');
-    const file = core.getInput('file');
-    const token = core.getInput('token');
+    var api = 'https://api.github.com';
+    var owner = core.getInput('owner');
+    var repo = core.getInput('repo');
+    var tag = core.getInput('tag');
+    var file = core.getInput('file');
+    var path = core.getInput('path');
+    var token = core.getInput('token');
 
     // Get release
     let url;
     if (tag == 'latest') {
-      url = api + '/repos/' + owner + '/' + repo + '/releases/latest';
+      url = `${api}/repos/${owner}/${repo}/releases/latest`;
     } else {
-      url = api + '/repos/' + owner + '/' + repo + '/releases/tags/' + tag;
+      url = `${api}/repos/${owner}/${repo}/releases/tags/${tag}`;
     }
 
     let headers = {
@@ -8751,6 +8762,18 @@ async function run() {
       }
     }
 
+    // Create output directory
+    if (path == '' || path == '/') {
+      path = '.';
+    } else {
+      if (process.platform == 'win32') {
+        path = '.';
+      } else {
+        path = `./${path}`;
+        await exec(`mkdir -p ${path}`);
+      }
+    }
+
     // Download assets
     headers = {
       Accept: 'application/octet-stream',
@@ -8765,7 +8788,7 @@ async function run() {
         headers: headers,
         responseType: 'stream',
       }).then(resp => {
-        resp.data.pipe(fs.createWriteStream(a.name));
+        resp.data.pipe(fs.createWriteStream(`${path}/${a.name}`));
       });
     }
   } catch (error) {
@@ -24655,6 +24678,13 @@ module.exports.Collection = Hook.Collection
 /***/ (function(module) {
 
 module.exports = require("zlib");
+
+/***/ }),
+
+/***/ 765:
+/***/ (function(module) {
+
+module.exports = require("process");
 
 /***/ }),
 
