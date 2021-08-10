@@ -55,13 +55,18 @@ async function run() {
     }
 
     // Create output directory
-    if (path == '' || path == '/') {
+    if (path == '') {
       path = '.';
+    } else if (path == '/') {
+      // skip
+    } else if (path == '.') {
+      // skip
+    } else if (path == './') {
+      // skip
     } else {
       if (process.platform == 'win32') {
-        path = '.';
+        await exec(`mkdir ${path} -ea 0`, { shell: 'powershell.exe' });
       } else {
-        path = `./${path}`;
         await exec(`mkdir -p ${path}`);
       }
     }
