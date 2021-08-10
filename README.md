@@ -9,11 +9,11 @@ This GitHub Action helps download release asset from a private repository with p
   id: download_release_asset
   uses: i3h/download-release-asset@v1
   with:
-    owner: owner_of_repo
-    repo: repo_name
-    tag: tag_or_latest
-    file: file_name
-    path: path_to_save_files
+    owner: i3h
+    repo: test
+    tag: v1.0.0 #or: latest
+    file: my_file.txt
+    path: directory/to/save/files
     token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 ```
 
