@@ -8773,7 +8773,11 @@ async function run() {
       // skip
     } else {
       if (process.platform == 'win32') {
-        await exec(`mkdir ${path} -ea 0`, { shell: 'powershell.exe' });
+        /*
+         * Reference
+         * https://stackoverflow.com/questions/47357135/powershell-equivalent-of-linux-mkdir-p
+         */
+        await exec(`mkdir ${path} -force -ea 0`, { shell: 'powershell.exe' });
       } else {
         await exec(`mkdir -p ${path}`);
       }
