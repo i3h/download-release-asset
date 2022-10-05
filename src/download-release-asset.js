@@ -82,7 +82,7 @@ async function run() {
     if (token != '') {
       headers.Authorization = 'token ' + token;
     }
-    for (let a of assets) {
+    await Promise.all(assets.map(a =>
       axios({
         method: 'get',
         url: a.url,
@@ -90,8 +90,8 @@ async function run() {
         responseType: 'stream',
       }).then(resp => {
         resp.data.pipe(fs.createWriteStream(`${path}/${a.name}`));
-      });
-    }
+      })
+    ));
   } catch (error) {
     core.setFailed(error.message);
   }
