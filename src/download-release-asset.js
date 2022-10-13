@@ -5,6 +5,15 @@ const axios = require('axios').default;
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const process = require('process');
+const axiosRetry = require('axios-retry');
+
+axiosRetry(
+  axios,
+  {
+    retries: 3,
+    retryDelay: axiosRetry.exponentialDelay,
+  },
+);
 
 async function run() {
   try {
@@ -82,7 +91,7 @@ async function run() {
     if (token != '') {
       headers.Authorization = 'token ' + token;
     }
-    for (let a of assets) {
+    await Promise.all(assets.map(a =>
       axios({
         method: 'get',
         url: a.url,
@@ -90,8 +99,8 @@ async function run() {
         responseType: 'stream',
       }).then(resp => {
         resp.data.pipe(fs.createWriteStream(`${path}/${a.name}`));
-      });
-    }
+      })
+    ));
   } catch (error) {
     core.setFailed(error.message);
   }
